@@ -85,7 +85,7 @@ namespace jcu {
             return Path(system_string_t(buf.data(), nLength));
         }
         Path Path::parent() const {
-            size_t pos = system_path_.find_last_of("/\\");
+            size_t pos = system_path_.find_last_of(_T("/\\"));
             if (system_string_t::npos == pos) {
                 return Path(_T(""));
             }
@@ -97,7 +97,7 @@ namespace jcu {
             if (!a.system_path_.empty()) {
                 joined = a.system_path_;
                 if ((joined.at(joined.length() - 1) != '\\') && (joined.at(joined.length() - 1) != '/'))
-                    joined.append("\\");
+                    joined.append(_T("\\"));
             }
             joined.append(b.system_path_);
             return Path(joined);
