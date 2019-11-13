@@ -59,7 +59,6 @@ namespace jcu {
                     }
                     if(flags_ & REMOVE_IF_EXISTS) {
                         std::basic_string<TCHAR> to_remove_file = old_path_.empty() ? path_ : old_path_;
-                        _tprintf("to_remove_file = %s\n", to_remove_file.c_str());
                         if(!::DeleteFile(to_remove_file.c_str())) {
                             ::MoveFileEx(to_remove_file.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
                         }
