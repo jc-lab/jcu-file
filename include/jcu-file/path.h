@@ -43,9 +43,12 @@ namespace jcu {
 
             static Path join(const Path &a, const Path &b);
 
+            Path();
             Path(const Path &obj);
             Path &operator=(const Path &obj);
             const system_string_t &getSystemString() const;
+            const std::string toUtf8() const;
+            bool isEmpty() const;
         };
 
     }

@@ -21,6 +21,8 @@ namespace jcu {
             : system_path_(system_string) {
         }
 
+        Path::Path() {}
+
         Path::Path(const Path &obj)
             : system_path_(obj.system_path_) {
         }
@@ -32,6 +34,22 @@ namespace jcu {
 
         const Path::system_string_t &Path::getSystemString() const {
             return system_path_;
+        }
+
+        const std::string Path::toUtf8() const {
+#ifdef _UNICODE
+            std::vector<char> ubuf;
+            int uLen = WideCharToMultiByte(CP_UTF8, 0, system_path_.c_str(), system_path_.length(), NULL, 0, NULL, NULL);
+            ubuf.reserve(uLen + 1);
+            WideCharToMultiByte(CP_UTF8, 0, system_path_.c_str(), system_path_.length(), ubuf.data(), uLen, NULL, NULL);
+            return std::string(ubuf.data(), uLen);
+#else
+            return system_path_;
+#endif
+        }
+
+        bool Path::isEmpty() const {
+            return system_path_.empty();
         }
 
         Path Path::newFromSystem(const Path::system_string_t &text) {
