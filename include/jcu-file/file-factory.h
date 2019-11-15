@@ -23,6 +23,9 @@ namespace jcu {
             virtual std::unique_ptr<FileHandler> createFileHandle(const Path &file_path) const = 0;
 
             virtual int makeDirectory(const Path& path, bool recursive = false) const = 0;
+
+            virtual Path getTempDir(int *perr = NULL) const = 0;
+            virtual Path generateTempPath(const char *prefix, int *perr = NULL) const = 0;
         };
 
         extern FileFactory *fs();

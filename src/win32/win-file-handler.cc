@@ -8,6 +8,8 @@
 #include "jcu-file/file-factory.h"
 #include "jcu-file/file-handler.h"
 
+#include <jcu-random/secure-random-factory.h>
+
 #include <sstream>
 #include <vector>
 #include <time.h>
@@ -21,7 +23,21 @@ namespace jcu {
         namespace win32 {
 
             class WinFileFactory : public FileFactory {
+            private:
+                std::unique_ptr<jcu::random::SecureRandom> secure_random_;
+
             public:
+                WinFileFactory() {
+                    secure_random_ = std::move(jcu::random::getSecureRandomFactory()->create());
+                }
+
+                ~WinFileFactory() {
+                }
+
+                unsigned int genRandomUint() const {
+                    return (unsigned int)secure_random_->nextInt();
+                }
+
                 std::unique_ptr<FileHandler> createFileHandle(const Path &file_path) const override {
                     return std::unique_ptr<FileHandler>(new WinFileHandler(file_path.getSystemString()));
                 }
@@ -40,6 +56,47 @@ namespace jcu {
                         }
                     }
                     return 0;
+                }
+
+                Path getTempDir(int *perr) const override {
+                    TCHAR szBuffer[MAX_PATH];
+                    DWORD dwTempDirLen = ::GetTempPath(MAX_PATH - 1, szBuffer);
+                    szBuffer[dwTempDirLen] = 0;
+                    if (dwTempDirLen == 0)
+                    {
+                        DWORD dwError = ::GetLastError();
+                        if (perr)
+                            *perr = (int) dwError;
+                        return Path();
+                    }
+
+                    if (perr)
+                        *perr = 0;
+
+                    return Path::newFromSystem(szBuffer);
+                }
+
+                Path generateTempPath(const char *prefix, int *perr) const override {
+                    int err = 0;
+                    Path tempDir(getTempDir(&err));
+                    if(err) {
+                        if(perr)
+                            *perr = err;
+                        return Path();
+                    }
+
+                    std::string cstrPrefix(prefix);
+                    std::basic_string<TCHAR> tstrPrefix(cstrPrefix.begin(), cstrPrefix.end());
+
+                    TCHAR szBuffer[MAX_PATH];
+                    UINT nResult = GetTempFileName(tempDir.getSystemString().c_str(), tstrPrefix.c_str(), genRandomUint(), szBuffer);
+                    if(nResult == 0) {
+                        if(perr)
+                            *perr = (int)::GetLastError();
+                        return Path();
+                    }
+
+                    return Path::newFromSystem(szBuffer);
                 }
             };
 
