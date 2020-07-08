@@ -17,41 +17,41 @@
 #endif
 
 namespace jcu {
-    namespace file {
+namespace file {
 
-        class Path {
-        public:
+class Path {
+ public:
 #ifdef _WIN32
-            typedef std::basic_string<TCHAR> system_string_t;
+  typedef std::basic_string<TCHAR> system_string_t;
 #else
-            typedef std::string system_string_t;
+  typedef std::string system_string_t;
 #endif
 
-        private:
-            system_string_t system_path_;
-            Path(const system_string_t &system_string);
+ private:
+  system_string_t system_path_;
+  Path(const system_string_t &system_string);
 
-        public:
-            static Path newFromUtf8(const std::string &text);
-            static Path newFromUtf8(const char *text, int length = -1);
-            static Path newFromSystem(const system_string_t &text);
+ public:
+  static Path newFromUtf8(const std::string &text);
+  static Path newFromUtf8(const char *text, int length = -1);
+  static Path newFromSystem(const system_string_t &text);
 
-            static Path dir();
-            static Path cwd();
-            static Path self();
-            Path parent() const;
+  static Path dir();
+  static Path cwd();
+  static Path self();
+  Path parent() const;
 
-            static Path join(const Path &a, const Path &b);
+  static Path join(const Path &a, const Path &b);
 
-            Path();
-            Path(const Path &obj);
-            Path &operator=(const Path &obj);
-            const system_string_t &getSystemString() const;
-            const std::string toUtf8() const;
-            bool isEmpty() const;
-        };
+  Path();
+  Path(const Path &obj);
+  Path &operator=(const Path &obj);
+  const system_string_t &getSystemString() const;
+  const std::string toUtf8() const;
+  bool isEmpty() const;
+};
 
-    }
+}
 }
 
 #endif //__JCU_FILE_PATH_H__

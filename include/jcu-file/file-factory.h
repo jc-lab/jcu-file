@@ -18,25 +18,25 @@
 #include "path.h"
 
 namespace jcu {
-    namespace file {
+namespace file {
 
-        class FileFactory {
-        public:
-            virtual std::unique_ptr<FileHandler> createFileHandle(const Path &file_path) const = 0;
+class FileFactory {
+ public:
+  virtual std::unique_ptr<FileHandler> createFileHandle(const Path &file_path) const = 0;
 
-            virtual int makeDirectory(const Path& path, bool recursive = false) const = 0;
+  virtual int makeDirectory(const Path &path, bool recursive = false) const = 0;
 
-            virtual Path getTempDir(int *perr = NULL) const = 0;
-            virtual Path generateTempPath(const char *prefix, int *perr = NULL) const = 0;
+  virtual Path getTempDir(int *perr = NULL) const = 0;
+  virtual Path generateTempPath(const char *prefix, int *perr = NULL) const = 0;
 
-            virtual bool isFile(const Path &path) const = 0;
-            virtual bool isDirectory(const Path &path) const = 0;
-            virtual int readdir(std::list<Path> &out, const Path &path) const = 0;
-        };
+  virtual bool isFile(const Path &path) const = 0;
+  virtual bool isDirectory(const Path &path) const = 0;
+  virtual int readdir(std::list<Path> &out, const Path &path) const = 0;
+};
 
-        extern FileFactory *fs();
+extern FileFactory *fs();
 
-    }
+}
 }
 
 #endif //__JCU_FILE_FACTORY_H__

@@ -15,140 +15,140 @@
 #include <vector>
 
 namespace jcu {
-    namespace file {
+namespace file {
 
-        Path::Path(const Path::system_string_t &system_string)
-            : system_path_(system_string) {
-        }
+Path::Path(const Path::system_string_t &system_string)
+    : system_path_(system_string) {
+}
 
-        Path::Path() {}
+Path::Path() {}
 
-        Path::Path(const Path &obj)
-            : system_path_(obj.system_path_) {
-        }
+Path::Path(const Path &obj)
+    : system_path_(obj.system_path_) {
+}
 
-        Path &Path::operator=(const Path &obj) {
-            system_path_ = obj.system_path_;
-            return *this;
-        }
+Path &Path::operator=(const Path &obj) {
+  system_path_ = obj.system_path_;
+  return *this;
+}
 
-        const Path::system_string_t &Path::getSystemString() const {
-            return system_path_;
-        }
+const Path::system_string_t &Path::getSystemString() const {
+  return system_path_;
+}
 
-        const std::string Path::toUtf8() const {
+const std::string Path::toUtf8() const {
 #ifdef _UNICODE
-            std::vector<char> ubuf;
-            int uLen = WideCharToMultiByte(CP_UTF8, 0, system_path_.c_str(), system_path_.length(), NULL, 0, NULL, NULL);
-            ubuf.reserve(uLen + 1);
-            WideCharToMultiByte(CP_UTF8, 0, system_path_.c_str(), system_path_.length(), ubuf.data(), uLen, NULL, NULL);
-            return std::string(ubuf.data(), uLen);
+  std::vector<char> ubuf;
+  int uLen = WideCharToMultiByte(CP_UTF8, 0, system_path_.c_str(), system_path_.length(), NULL, 0, NULL, NULL);
+  ubuf.reserve(uLen + 1);
+  WideCharToMultiByte(CP_UTF8, 0, system_path_.c_str(), system_path_.length(), ubuf.data(), uLen, NULL, NULL);
+  return std::string(ubuf.data(), uLen);
 #else
-            return system_path_;
+  return system_path_;
 #endif
-        }
+}
 
-        bool Path::isEmpty() const {
-            return system_path_.empty();
-        }
+bool Path::isEmpty() const {
+  return system_path_.empty();
+}
 
-        Path Path::newFromSystem(const Path::system_string_t &text) {
-            return Path(text);
-        }
+Path Path::newFromSystem(const Path::system_string_t &text) {
+  return Path(text);
+}
 
-        Path Path::newFromUtf8(const std::string &text) {
+Path Path::newFromUtf8(const std::string &text) {
 #ifdef _WIN32
-            return newFromUtf8(text.c_str(), text.length());
+  return newFromUtf8(text.c_str(), text.length());
 #else
-            return Path(text);
+  return Path(text);
 #endif
-        }
+}
 
-        Path Path::newFromUtf8(const char *text, int length) {
+Path Path::newFromUtf8(const char *text, int length) {
 #ifdef _WIN32
-            std::vector<wchar_t> wbuf;
-            if (length < 0)
-                length = strlen(text);
-            int wLen = MultiByteToWideChar(CP_UTF8, 0, text, length, NULL, NULL);
-            wbuf.reserve(wLen + 1);
-            MultiByteToWideChar(CP_UTF8, 0, text, length, wbuf.data(), wLen);
+  std::vector<wchar_t> wbuf;
+  if (length < 0)
+    length = strlen(text);
+  int wLen = MultiByteToWideChar(CP_UTF8, 0, text, length, NULL, NULL);
+  wbuf.reserve(wLen + 1);
+  MultiByteToWideChar(CP_UTF8, 0, text, length, wbuf.data(), wLen);
 #ifdef _UNICODE
-            return Path(std::basic_string<wchar_t>(wbuf.data(), wbuf.data() + wLen));
+  return Path(std::basic_string<wchar_t>(wbuf.data(), wbuf.data() + wLen));
 #else
-            std::vector<char> cbuf;
-            int cLen = WideCharToMultiByte(CP_ACP, 0, wbuf.data(), wLen, NULL, 0, NULL, NULL);
-            cbuf.reserve(cLen + 1);
-            WideCharToMultiByte(CP_ACP, 0, wbuf.data(), wLen, cbuf.data(), cLen, NULL, NULL);
-            return Path(std::basic_string<char>(cbuf.data(), cbuf.data() + cLen));
+  std::vector<char> cbuf;
+  int cLen = WideCharToMultiByte(CP_ACP, 0, wbuf.data(), wLen, NULL, 0, NULL, NULL);
+  cbuf.reserve(cLen + 1);
+  WideCharToMultiByte(CP_ACP, 0, wbuf.data(), wLen, cbuf.data(), cLen, NULL, NULL);
+  return Path(std::basic_string<char>(cbuf.data(), cbuf.data() + cLen));
 #endif
 #else
-            return Path(std::string(text, length));
+  return Path(std::string(text, length));
 #endif
-        }
+}
 
-        Path Path::dir() {
-            Path self_path(self());
-            return self_path.parent();
-        }
+Path Path::dir() {
+  Path self_path(self());
+  return self_path.parent();
+}
 
 #ifdef _WIN32
-        Path Path::cwd() {
-            std::vector<TCHAR> buf(1024);
-            DWORD nLength = ::GetCurrentDirectory(buf.size(), buf.data());
-            return Path(system_string_t(buf.data(), nLength));
-        }
-        Path Path::self() {
-            std::vector<TCHAR> buf(1024);
-            DWORD nLength = ::GetModuleFileName(NULL, buf.data(), buf.size());
-            return Path(system_string_t(buf.data(), nLength));
-        }
-        Path Path::parent() const {
-            size_t pos = system_path_.find_last_of(_T("/\\"));
-            if (system_string_t::npos == pos) {
-                return Path(_T(""));
-            }
-            return Path(system_path_.substr(0, pos));
-        }
+Path Path::cwd() {
+  std::vector<TCHAR> buf(1024);
+  DWORD nLength = ::GetCurrentDirectory(buf.size(), buf.data());
+  return Path(system_string_t(buf.data(), nLength));
+}
+Path Path::self() {
+  std::vector<TCHAR> buf(1024);
+  DWORD nLength = ::GetModuleFileName(NULL, buf.data(), buf.size());
+  return Path(system_string_t(buf.data(), nLength));
+}
+Path Path::parent() const {
+  size_t pos = system_path_.find_last_of(_T("/\\"));
+  if (system_string_t::npos == pos) {
+    return Path(_T(""));
+  }
+  return Path(system_path_.substr(0, pos));
+}
 
-        Path Path::join(const Path &a, const Path &b) {
-            system_string_t joined;
-            if (!a.system_path_.empty()) {
-                joined = a.system_path_;
-                if ((joined.at(joined.length() - 1) != '\\') && (joined.at(joined.length() - 1) != '/'))
-                    joined.append(_T("\\"));
-            }
-            joined.append(b.system_path_);
-            return Path(joined);
-        }
+Path Path::join(const Path &a, const Path &b) {
+  system_string_t joined;
+  if (!a.system_path_.empty()) {
+    joined = a.system_path_;
+    if ((joined.at(joined.length() - 1) != '\\') && (joined.at(joined.length() - 1) != '/'))
+      joined.append(_T("\\"));
+  }
+  joined.append(b.system_path_);
+  return Path(joined);
+}
 #else
-        Path Path::cwd() {
-            std::vector<char> buf(1024);
-            const char *path = getcwd(buf.data(), buf.size());
-            return Path(path);
-        }
-        Path Path::self() {
-            std::vector<char> buf(1024);
-            int len = readlink("/proc/self/exe", buf.data(), buf.size());
-            return Path(std::string(buf.data(), len));
-        }
-        Path Path::parent() const {
-            size_t pos = system_path_.find_last_of("/");
-            if(system_string_t::npos == pos) {
-                return Path("");
-            }
-            return Path(system_path_.substr(0, pos));
-        }
-
-        Path Path::join(const Path& a, const Path& b) {
-            system_string_t joined;
-            if(!a.system_path_.empty()) {
-                joined = a.system_path_;
-                if(joined.at(joined.length() - 1) != '/')
-                    joined.append("/");
-            }
-            joined.append(b.system_path_);
-            return Path(joined);
-        }
-#endif
+Path Path::cwd() {
+    std::vector<char> buf(1024);
+    const char *path = getcwd(buf.data(), buf.size());
+    return Path(path);
+}
+Path Path::self() {
+    std::vector<char> buf(1024);
+    int len = readlink("/proc/self/exe", buf.data(), buf.size());
+    return Path(std::string(buf.data(), len));
+}
+Path Path::parent() const {
+    size_t pos = system_path_.find_last_of("/");
+    if(system_string_t::npos == pos) {
+        return Path("");
     }
+    return Path(system_path_.substr(0, pos));
+}
+
+Path Path::join(const Path& a, const Path& b) {
+    system_string_t joined;
+    if(!a.system_path_.empty()) {
+        joined = a.system_path_;
+        if(joined.at(joined.length() - 1) != '/')
+            joined.append("/");
+    }
+    joined.append(b.system_path_);
+    return Path(joined);
+}
+#endif
+}
 }
