@@ -1,16 +1,68 @@
+#include <string>
+#include <map>
+#include <list>
+
+#include <test-config.h>
+
+#include <gtest/gtest.h>
+
+#include <jcu-file/path.h>
 #include <jcu-file/file-factory.h>
 
-#include <iostream>
+using namespace jcu::file;
 
-int main() {
-  auto fs = jcu::file::fs();
-  std::list<jcu::file::Path> file_list;
+// PathTest
+namespace {
 
-  fs->readdir(file_list, jcu::file::Path::newFromUtf8("G:\\temp"));
+TEST(PathTest, parent) {
+  Path a = Path::newFromUtf8("aaaa");
+  Path b = Path::newFromUtf8("bbbb");
+  Path c = Path::join(a, b);
 
-  for(auto it = file_list.begin(); it != file_list.end(); it++) {
-    std::cout << "FILE ITEM : [" << it->toUtf8() << "]" << std::endl;
+  EXPECT_EQ(c.parent().toUtf8(), a.toUtf8());
+}
+
+} // namespace
+
+// FileSystemTest
+namespace {
+
+std::string getTestFilesDir() {
+  std::string temp = TEST_FILES_DIR;
+  for (auto it = temp.begin(); it != temp.end(); it++) {
+    if (*it == '/') {
+      *it = '\\';
+    }
+  }
+  return temp;
+}
+
+TEST(FileSystemTest, readdir) {
+  std::string test_dir = getTestFilesDir();
+  auto file_factory = fs();
+  std::list<Path> file_list;
+  int rc = file_factory->readdir(file_list, Path::newFromUtf8(test_dir));
+
+  EXPECT_EQ(rc, 0);
+
+  std::map<std::string, unsigned int> expect_values;
+  expect_values.emplace(Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8("file-1")).toUtf8(), 1);
+  expect_values.emplace(Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8("file-2")).toUtf8(), 2);
+  expect_values.emplace(Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8("dir-a")).toUtf8(), 3);
+  expect_values.emplace(Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8("dir-b")).toUtf8(), 4);
+
+  unsigned int result_mask = 0;
+  unsigned int expect_mask = 0x1e;
+
+  for (auto it = file_list.cbegin(); it != file_list.cend(); it++) {
+    const auto found = expect_values.find(it->toUtf8());
+    EXPECT_TRUE(found != expect_values.cend());
+    if (found != expect_values.cend()) {
+      result_mask |= (1U << found->second);
+    }
   }
 
-  return 0;
+  EXPECT_EQ(result_mask, expect_mask);
 }
+
+} // namespace
