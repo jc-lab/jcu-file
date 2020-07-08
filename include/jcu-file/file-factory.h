@@ -10,10 +10,12 @@
 #ifndef __JCU_FILE_FACTORY_H__
 #define __JCU_FILE_FACTORY_H__
 
+#include <memory>
+#include <list>
+#include <string>
+
 #include "file-handler.h"
 #include "path.h"
-
-#include <memory>
 
 namespace jcu {
     namespace file {
@@ -26,6 +28,10 @@ namespace jcu {
 
             virtual Path getTempDir(int *perr = NULL) const = 0;
             virtual Path generateTempPath(const char *prefix, int *perr = NULL) const = 0;
+
+            virtual bool isFile(const Path &path) const = 0;
+            virtual bool isDirectory(const Path &path) const = 0;
+            virtual int readdir(std::list<Path> &out, const Path &path) const = 0;
         };
 
         extern FileFactory *fs();

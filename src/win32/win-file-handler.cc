@@ -13,6 +13,7 @@
 #include <sstream>
 #include <vector>
 #include <time.h>
+#include <list>
 
 #ifdef _WIN32
 #include "jcu-file/win32/win-file-handler.h"
@@ -98,6 +99,9 @@ namespace jcu {
 
                     return Path::newFromSystem(szBuffer);
                 }
+              bool isFile(const Path &path) const override;
+              bool isDirectory(const Path &path) const override;
+              int readdir(std::list<Path> &out, const Path &path) const override;
             };
 
             WinFileHandler::WinFileHandler(const std::basic_string<TCHAR> &path)
@@ -202,6 +206,61 @@ namespace jcu {
             }
             Path WinFileHandler::getOldName() const {
                 return Path::newFromSystem(old_path_);
+            }
+
+            bool WinFileFactory::isFile(const Path & path) const {
+                std::basic_string<TCHAR> str_path = path.getSystemString();
+                DWORD attrs = ::GetFileAttributes(str_path.c_str());
+                if (attrs == INVALID_FILE_ATTRIBUTES) {
+                    return false;
+                }
+                return (attrs & (FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_TEMPORARY));
+            }
+
+            bool WinFileFactory::isDirectory(const Path & path) const {
+                std::basic_string<TCHAR> str_path = path.getSystemString();
+                DWORD attrs = ::GetFileAttributes(str_path.c_str());
+                if (attrs == INVALID_FILE_ATTRIBUTES) {
+                  return false;
+                }
+                return (attrs & FILE_ATTRIBUTE_DIRECTORY);
+            }
+
+            int WinFileFactory::readdir(std::list<Path> & out, const Path & path) const {
+                std::basic_string<TCHAR> str_dir = path.getSystemString();
+                size_t dir_len;
+                const TCHAR last_chr = str_dir.empty() ? 0 : str_dir.at(str_dir.length() - 1);
+                WIN32_FIND_DATA ffd = {0};
+                HANDLE find_handle;
+
+                if (str_dir.empty()) {
+                    return -1;
+                }
+
+                if (last_chr == _T('\\') || last_chr == _T('/')) {
+                    str_dir.pop_back();
+                }
+
+                str_dir.append(_T("\\"));
+                dir_len = str_dir.length();
+                str_dir.append(_T("*"));
+
+                find_handle = ::FindFirstFile(str_dir.c_str(), &ffd);
+                if (!find_handle || find_handle == INVALID_HANDLE_VALUE) {
+                    return ::GetLastError();
+                }
+
+                do {
+                    if (_tcscmp(ffd.cFileName, _T(".")) && _tcscmp(ffd.cFileName, _T(".."))) {
+                        str_dir.resize(dir_len);
+                        str_dir.append(ffd.cFileName);
+                        out.emplace_back(Path::newFromSystem(str_dir));
+                    }
+                } while(FindNextFile(find_handle, &ffd));
+
+                ::FindClose(find_handle);
+
+                return 0;
             }
         }
 
