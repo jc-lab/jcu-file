@@ -3,6 +3,23 @@ project(jcu-file CXX)
 
 # <CONAN BUILD>
 
+include(FetchContent)
+
+if (NOT TARGET jcu-random)
+    FetchContent_Declare(
+            jcu_random
+            GIT_REPOSITORY https://github.com/jc-lab/jcu-random.git
+            GIT_TAG master
+    )
+
+    FetchContent_GetProperties(jcu_random)
+
+    if (NOT jcu_random_POPULATED)
+        FetchContent_Populate(jcu_random)
+        add_subdirectory(${jcu_random_SOURCE_DIR} ${jcu_random_BINARY_DIR})
+    endif ()
+endif ()
+
 set(SRC_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/jcu-file/path.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/jcu-file/file-handler.h
