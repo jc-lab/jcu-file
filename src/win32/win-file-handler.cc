@@ -100,6 +100,7 @@ class WinFileFactory : public FileFactory {
   }
   bool isFile(const Path &path) const override;
   bool isDirectory(const Path &path) const override;
+  bool isDevice(const Path &path) const override;
   int readdir(std::list<Path> &out, const Path &path) const override;
 };
 
@@ -219,7 +220,7 @@ bool WinFileFactory::isFile(const Path &path) const {
   if (attrs == INVALID_FILE_ATTRIBUTES) {
     return false;
   }
-  return (attrs & (FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_TEMPORARY));
+  return !(attrs & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_DEVICE));
 }
 
 bool WinFileFactory::isDirectory(const Path &path) const {
@@ -229,6 +230,15 @@ bool WinFileFactory::isDirectory(const Path &path) const {
     return false;
   }
   return (attrs & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+bool WinFileFactory::isDevice(const Path &path) const {
+  std::basic_string<TCHAR> str_path = path.getSystemString();
+  DWORD attrs = ::GetFileAttributes(str_path.c_str());
+  if (attrs == INVALID_FILE_ATTRIBUTES) {
+    return false;
+  }
+  return (attrs & FILE_ATTRIBUTE_DEVICE);
 }
 
 int WinFileFactory::readdir(std::list<Path> &out, const Path &path) const {

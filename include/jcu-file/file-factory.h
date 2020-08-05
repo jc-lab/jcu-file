@@ -31,6 +31,7 @@ class FileFactory {
 
   virtual bool isFile(const Path &path) const = 0;
   virtual bool isDirectory(const Path &path) const = 0;
+  virtual bool isDevice(const Path &path) const = 0;
   virtual int readdir(std::list<Path> &out, const Path &path) const = 0;
 };
 
