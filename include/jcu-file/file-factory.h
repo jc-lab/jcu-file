@@ -33,6 +33,8 @@ class FileFactory {
   virtual bool isDirectory(const Path &path) const = 0;
   virtual bool isDevice(const Path &path) const = 0;
   virtual int readdir(std::list<Path> &out, const Path &path) const = 0;
+
+  virtual int64_t getFileSize(const Path& path) const = 0;
 };
 
 extern FileFactory *fs();

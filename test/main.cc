@@ -37,6 +37,28 @@ std::string getTestFilesDir() {
   return temp;
 }
 
+TEST(FileSystemTest, getFileSizeFile1) {
+  std::string test_dir = getTestFilesDir();
+  std::string filename = "file-1";
+
+  auto file_factory = fs();
+  auto file_path = Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8(filename));
+  int64_t size = file_factory->getFileSize(file_path);
+
+  EXPECT_EQ(size, 11);
+}
+
+TEST(FileSystemTest, getFileSizeFile2) {
+  std::string test_dir = getTestFilesDir();
+  std::string filename = "file-2";
+
+  auto file_factory = fs();
+  auto file_path = Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8(filename));
+  int64_t size = file_factory->getFileSize(file_path);
+
+  EXPECT_EQ(size, 0);
+}
+
 TEST(FileSystemTest, readdir) {
   std::string test_dir = getTestFilesDir();
   auto file_factory = fs();

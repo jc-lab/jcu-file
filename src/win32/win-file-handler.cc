@@ -102,6 +102,7 @@ class WinFileFactory : public FileFactory {
   bool isDirectory(const Path &path) const override;
   bool isDevice(const Path &path) const override;
   int readdir(std::list<Path> &out, const Path &path) const override;
+  int64_t WinFileFactory::getFileSize(const Path& path) const override;
 };
 
 WinFileHandler::WinFileHandler(const std::basic_string<TCHAR> &path)
@@ -277,6 +278,20 @@ int WinFileFactory::readdir(std::list<Path> &out, const Path &path) const {
 
   return 0;
 }
+
+int64_t WinFileFactory::getFileSize(const Path& path) const {
+  WIN32_FILE_ATTRIBUTE_DATA data = { 0 };
+  if(::GetFileAttributesEx(
+    path.getSystemString().c_str(),
+    GetFileExInfoStandard,
+    &data
+    )) {
+    return ((((int64_t)data.nFileSizeHigh) & 0xffffffffLL) << 32) |
+      (((int64_t)data.nFileSizeLow) & 0xffffffffLL);
+  }
+  return -((int)::GetLastError());
+}
+
 }
 
 FileFactory *fs() {
