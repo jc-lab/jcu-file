@@ -73,6 +73,13 @@ class FileHandler {
   virtual bool isOpen() const = 0;
 
   virtual Path getOldName() const = 0;
+
+  /**
+   * get file size from filesystem
+   *
+   * @return file size
+   */
+  virtual int64_t getFileSize() const = 0;
 };
 
 }

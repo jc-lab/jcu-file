@@ -88,3 +88,38 @@ TEST(FileSystemTest, readdir) {
 }
 
 } // namespace
+
+// FileHandleTest
+namespace {
+
+TEST(FileHandleTest, getFileSizeFile1) {
+  std::string test_dir = getTestFilesDir();
+  std::string filename = "file-1";
+
+  auto file_factory = fs();
+  auto file_path = Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8(filename));
+  auto file_handle = file_factory->createFileHandle(
+    file_path
+  );
+  EXPECT_EQ(file_handle->open(jcu::file::MODE_EXISTS | jcu::file::MODE_READ), 0);
+
+  int64_t size = file_handle->getFileSize();
+  EXPECT_EQ(size, 11);
+}
+
+TEST(FileHandleTest, getFileSizeFile2) {
+  std::string test_dir = getTestFilesDir();
+  std::string filename = "file-2";
+
+  auto file_factory = fs();
+  auto file_path = Path::join(Path::newFromUtf8(test_dir), Path::newFromUtf8(filename));
+  auto file_handle = file_factory->createFileHandle(
+    file_path
+  );
+  EXPECT_EQ(file_handle->open(jcu::file::MODE_EXISTS | jcu::file::MODE_READ), 0);
+
+  int64_t size = file_handle->getFileSize();
+  EXPECT_EQ(size, 0);
+}
+
+} // namespace

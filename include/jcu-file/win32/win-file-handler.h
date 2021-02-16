@@ -36,6 +36,7 @@ class WinFileHandler : public FileHandler {
   int close() override;
   bool isOpen() const override;
   Path getOldName() const override;
+  int64_t getFileSize() const override;
 };
 }
 }

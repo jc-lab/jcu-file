@@ -214,6 +214,13 @@ bool WinFileHandler::isOpen() const {
 Path WinFileHandler::getOldName() const {
   return Path::newFromSystem(old_path_);
 }
+int64_t WinFileHandler::getFileSize() const {
+  LARGE_INTEGER filesize = { 0 };
+  if (::GetFileSizeEx(handle_, &filesize)) {
+    return filesize.QuadPart;
+  }
+  return -((int)::GetLastError());
+}
 
 bool WinFileFactory::isFile(const Path &path) const {
   std::basic_string<TCHAR> str_path = path.getSystemString();
