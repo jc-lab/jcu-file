@@ -66,3 +66,5 @@ if (jcu_file_BUILD_TESTS)
     add_subdirectory(test)
 endif ()
 
+install(TARGETS jcu-file)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/jcu-file DESTINATION include)
