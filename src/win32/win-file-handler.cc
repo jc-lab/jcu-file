@@ -129,6 +129,10 @@ int WinFileHandler::removeOld() {
   return 0;
 }
 
+HANDLE WinFileHandler::handle() const {
+  return handle_;
+}
+
 int WinFileHandler::open(int flags) {
   DWORD dwDesiredAccess = 0;
   DWORD dwShareMode = 0;

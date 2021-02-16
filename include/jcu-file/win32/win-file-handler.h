@@ -29,6 +29,7 @@ class WinFileHandler : public FileHandler {
 
  public:
   WinFileHandler(const std::basic_string<TCHAR> &path);
+  HANDLE handle() const;
   int open(int flags) override;
   int read(void *buf, int size) override;
   int write(const void *buf, int size) override;
