@@ -102,7 +102,7 @@ class WinFileFactory : public FileFactory {
   bool isDirectory(const Path &path) const override;
   bool isDevice(const Path &path) const override;
   int readdir(std::list<Path> &out, const Path &path) const override;
-  int64_t WinFileFactory::getFileSize(const Path& path) const override;
+  int64_t getFileSize(const Path& path) const override;
 };
 
 WinFileHandler::WinFileHandler(const std::basic_string<TCHAR> &path)
